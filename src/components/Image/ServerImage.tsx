@@ -1,8 +1,9 @@
 import fs from "fs";
-import { FALL_BACK_IMG_PATH, Props } from "./constants";
 import path from "path";
-import Image from "next/image";
+import Image, { ImageProps } from "next/image";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import { getPlaiceholder } from "plaiceholder";
+import { FALL_BACK_IMG_PATH, Props } from "./constants";
 
 const fallbackImagePath = FALL_BACK_IMG_PATH;
 
@@ -13,8 +14,18 @@ export const ServerImage = async ({
   ...props
 }: Props) => {
   const imageSrc = await getImageSrc(src, fallbackSrc);
+  const blurData = await getBase64(imageSrc as string);
 
-  return <Image alt={alt} src={imageSrc} {...props} />;
+  const imageProps: Omit<ImageProps, "alt"> = {
+    src: imageSrc,
+    ...props,
+  };
+  if (blurData) {
+    imageProps.placeholder = "blur";
+    imageProps.blurDataURL = blurData;
+  }
+
+  return <Image {...imageProps} alt={alt} />;
 };
 
 const getImageSrc = async (
@@ -37,7 +48,6 @@ const getImageSrc = async (
   const isExists = await checkLocalImageExists(localImagePath);
   return isExists ? src : fallbackSrc;
 };
-
 const checkRemoteImageExists = async (url: string) => {
   try {
     const res = await fetch(url, { method: "HEAD" });
@@ -58,5 +68,19 @@ const checkLocalImageExists = async (path: string) => {
       `checkLocalImageExists - Error checking image with path: ${path} - ${error}`
     );
     return false;
+  }
+};
+const getBase64 = async (url: string) => {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+
+    const buffer = await res.arrayBuffer();
+    const { base64 } = await getPlaiceholder(Buffer.from(buffer));
+    return base64;
+  } catch (error) {
+    console.error(
+      `getBase64 - Error getting image with url: ${url} - ${error}`
+    );
   }
 };
