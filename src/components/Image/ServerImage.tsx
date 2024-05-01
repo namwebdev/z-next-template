@@ -82,5 +82,6 @@ const getBase64 = async (url: string) => {
     console.error(
       `getBase64 - Error getting image with url: ${url} - ${error}`
     );
+    return null;
   }
 };
