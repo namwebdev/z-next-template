@@ -1,19 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { authApi } from "@/apiRequest/auth.request";
-import { AUTH_SESSION_NAME, routes } from "@/constants";
-import { setCookie } from "@/lib/utils";
+import { useServerAction } from "zsa-react";
+import { submitLogin } from "./action";
 
 export default function LoginPage() {
   const router = useRouter();
+  const {execute, isPending, error} = useServerAction(submitLogin);
 
   const login = async () => {
-    const {
-      data: { token },
-    } = await authApi.login("123", "123");
-    setCookie(AUTH_SESSION_NAME, token);
-    router.push(routes.home);
+    const [res, err] = await execute({phone: "123", password: "123"});
+    console.log(res,err);
   };
 
   return <button onClick={login}>Login</button>;
