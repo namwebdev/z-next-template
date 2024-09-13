@@ -1,20 +1,17 @@
-import { userServerApi } from "@/apiRequest/user/user.server.request";
 import { Header } from "@/components/App/Header";
 import { db } from "@/db";
 import { Dna } from "lucide-react";
+import { Sidebar } from "@/components/App/Sidebar";
 
 export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const data = await db.query.workspaces.findMany({})
-  console.log("🚀 ~ data:", data);
-
   return (
-    <main>
-      <Header />
-      <section className="mt-14">{children}</section>
+    <main className="grid sm:grid-cols-[auto_1fr] grid-cols-[1fr] gap-1">
+      <Sidebar />
+      <section>{children}</section>
     </main>
   );
 }
