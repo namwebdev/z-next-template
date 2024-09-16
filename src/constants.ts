@@ -1,6 +1,9 @@
 export const AUTH_SESSION_NAME = "auth-session";
 
-export const routes = {
+export const ROUTES = {
   home: "/",
-  login: "/auth/login",
+  // auth routes
+  auth: "/auth",
+  authError: "/auth/auth-code-error",
+
 } as const;
