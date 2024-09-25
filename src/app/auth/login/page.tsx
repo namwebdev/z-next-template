@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { authApi } from "@/apiRequest/auth.request";
 import { AUTH_SESSION_NAME, routes } from "@/constants";
-import { setCookie } from "@/lib/utils";
+import { setCookie } from "@/lib/cookie";
 
 export default function LoginPage() {
   const router = useRouter();

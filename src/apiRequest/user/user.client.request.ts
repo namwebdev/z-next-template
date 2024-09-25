@@ -1,4 +1,4 @@
-import { getCookie } from "@/lib/utils";
+import { getCookie } from "@/lib/cookie";
 import { userApi } from "./user.request";
 import { AUTH_SESSION_NAME } from "@/constants";
 

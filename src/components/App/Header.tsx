@@ -1,7 +1,7 @@
 "use client"
 
 import { AUTH_SESSION_NAME, routes } from "@/constants";
-import { deleteCookie } from "@/lib/utils";
+import { deleteCookie } from "@/lib/cookie";
 import { useRouter } from "next/navigation";
 
 export const Header = () => {
