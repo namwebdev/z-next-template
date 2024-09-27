@@ -1,35 +1,32 @@
-import ClientImage from "@/components/Image/ClientImage";
-import { ServerImage } from "@/components/Image/ServerImage";
-import Link from "next/link";
+"use client";
+
+import { sendNotification } from "@/actions/notification.actions";
+import NotificationRequest from "@/components/NotificationRequest";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const sendNoti = async (sender_id: number, receiver_id: number) => {
+    await sendNotification({
+      message: "Hello, you have a new notification",
+      sender_id,
+      receiver_id,
+    });
+  };
 
   return (
-    <main className="">
-      <Link href="/photos/1">Go to photo 1</Link>
+    <main className="grid grid-col-2">
+      <div>
+        I'm user 1<Button>Send notification to user 2</Button>
+      </div>
 
-      <div className="w-[200px] h-20 relative">
-        <ClientImage
-          src="https://plus.unsplash.com/premium_photo-1683910767532-3a25b821f7ae?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt="Test"
-          fill
-          className="object-cover"
-        />
+      <div>
+        I'm user 2
+        <Button onClick={() => sendNoti(2, 1)}>
+          Send notification to user 1
+        </Button>
       </div>
-      <div className="relative block h-40 w-96">
-        <ServerImage
-          alt="s"
-          className="object-cover"
-          // width={0}
-          // height={0}
-          // style={{
-          //   width: "100%",
-          //   height: "auto",
-          // }}
-          fill
-          src="https://plus.unsplash.com/premium_photo-1683910767532-3a25b821f7ae?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        />
-      </div>
+
+      <NotificationRequest />
     </main>
   );
 }
