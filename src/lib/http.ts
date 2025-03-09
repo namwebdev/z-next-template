@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 type RequestFormat = keyof Omit<Body, "body" | "bodyUsed">;
 type QueryParamsType = Record<string | number, any>;
@@ -12,14 +14,13 @@ interface HttpInitParams
   extends Omit<RequestInit, "body" | "method" | "headers"> {
   baseUrl: string;
   format?: RequestFormat;
-  authHeader?: string;
 }
 interface RequestParams extends Partial<HttpInitParams> {
   path: string;
   method: RequestMethod;
   body?: unknown;
-  token?: string;
   query?: QueryParamsType;
+  secure?: boolean;
 }
 interface HttpResonse<D, E> {
   data: D;
@@ -29,7 +30,8 @@ interface HttpResonse<D, E> {
 interface ErrorStatusCode {
   statusCode: number;
 }
-interface ErrorModel extends ErrorStatusCode { /** modify this to fit with error response from your API server **/
+interface ErrorModel extends ErrorStatusCode {
+  /** modify this to fit with error response from your API server **/
   status: string;
   message: string;
 }
@@ -37,13 +39,6 @@ interface ErrorModel extends ErrorStatusCode { /** modify this to fit with error
 export class HttpClient {
   private baseUrl = "";
   private format: RequestFormat = "json";
-  private _authHeader = "Authorization";
-  protected get authHeader() {
-    return this._authHeader;
-  }
-  private set authHeader(value: string) {
-    this._authHeader = value;
-  }
 
   constructor(config: HttpInitParams) {
     Object.assign(this, config);
@@ -55,12 +50,13 @@ export class HttpClient {
     const baseHeaders: HeadersInit = {
       "Content-Type": ContentType.Json,
       Accept: "application/json",
-    }
+    };
 
     const fallbackDataResponse = null as unknown as D;
     const fallbackErrorResponse = null as unknown as E;
 
-    const { path, method, query, body = null, token = false } = params;
+    const { path, method, query, body = null, secure, format } = params;
+    if (format) this.format = format;
 
     let queryString = this.toQueryString(query);
     if (queryString) queryString = "?" + queryString;
@@ -72,21 +68,25 @@ export class HttpClient {
       ...{ method },
       ...(!!body && { body: this.bodyConverter(body) }),
     };
-    if (token) {
-      if (this.authHeader === "Authorization")
-        fullRequestParams.headers["Authorization"] = token;
+    if (secure) {
+      const cookieHeader = (await cookies()).toString();
+      fullRequestParams.headers["Cookie"] = cookieHeader;
     }
 
     const res = await fetch(fullRequestUrl, fullRequestParams);
-    const jsonRes = await res[this.format]();
+
+    let jsonRes = null;
+    try {
+      jsonRes = await res.json();
+    } catch (e) { }
 
     if (!res.ok) {
-      // if (res.status === 401) localStorage.removeItem(this.authHeader);
       return {
         data: fallbackDataResponse,
         error: { ...jsonRes, ...{ statusCode: res.status } } as E,
       };
     }
+
     return {
       data: jsonRes as D,
       error: fallbackErrorResponse,
@@ -123,12 +123,4 @@ export class HttpClient {
   private bodyConverter(input: any) {
     return JSON.stringify(input);
   }
-}
-interface AuthErrorResponse extends ErrorStatusCode {
-  errors: {
-    email?: string[];
-    username?: string[];
-    password?: string[];
-    "email or password"?: string[];
-  };
 }
