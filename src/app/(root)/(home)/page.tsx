@@ -1,7 +1,6 @@
 "use client"
 
 import ClientImage from "@/components/Image/ClientImage";
-import { ServerImage } from "@/components/Image/ServerImage";
 import { supabaseBrowserClient } from "@/lib/supabase/supabase.client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

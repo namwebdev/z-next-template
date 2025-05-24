@@ -2,7 +2,7 @@
 
 interface Menu {
   name: string;
-  icon: JSX.Element;
+  icon: React.ReactNode;
   href: string;
 }
 const menus: Menu[] = [
@@ -15,24 +15,32 @@ const menus: Menu[] = [
   },
 ];
 import { cn } from "@/lib/utils";
-import clsx from "clsx";
 import {
   Contact,
   HomeIcon,
   ChevronsLeft,
-  List,
   ListChecks,
-  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 
+const getIsSidebarOpen = () => {
+  const isSidebarOpen = localStorage.getItem("isSidebarOpen");
+  return isSidebarOpen ? JSON.parse(isSidebarOpen) : true;
+}
+
 export const Sidebar = () => {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState<boolean>(getIsSidebarOpen());
   const [activeMenuIndex, setActiveMenuIndex] = useState(-1);
-  const toggleSidebar = () => setIsOpen((prevState) => !prevState);
+  const toggleSidebar = () => {
+    setIsOpen((prevState) => {
+      const newState = !prevState;
+      localStorage.setItem("isSidebarOpen", newState.toString());
+      return newState;
+    });
+  }
 
   return (
     <nav

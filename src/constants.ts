@@ -6,4 +6,5 @@ export const ROUTES = {
   auth: "/auth",
   authError: "/auth/auth-code-error",
 
+  login: "/login",
 } as const;
